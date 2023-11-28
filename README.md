@@ -1,4 +1,4 @@
-# lib-metrics-iam
+# lib-EKG
 
 
 Philips ECG Wave Detection Library
