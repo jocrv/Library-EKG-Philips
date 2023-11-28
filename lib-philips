@@ -1,0 +1,446 @@
+from array import array
+from curses import window
+from turtle import shape
+from pdf2image import convert_from_path
+import numpy as np
+import cv2
+from matplotlib import pyplot as plt 
+import modulos_prontos.helper_functions as hf 
+from scipy.signal import savgol_filter
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.signal as ss
+from scipy.signal import savgol_filter 
+from scipy import stats 
+import scipy.stats as sp 
+
+
+def function1(path_pdf):
+   pages = convert_from_path(path_pdf, 200)
+   i = np.asarray(pages[1])
+   return i  
+ 
+## DI
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste2.png", img[1800:2300,200:1600,:])
+
+
+# DII
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste3.png", img[2450:2950,200:1600,:2970])
+
+
+# V4 (wave 1)
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste4.png", img[1600:2290,4470:6100,:])
+
+#aVR (WAVE 1)
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste5.png", img[1680:2310,1600:3100:])
+
+# dii MAIOR(?) last one -- cut down
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste6.png", img[3800:5900,200:2800,:])
+
+## DIII
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste7.png", img[2990: 3790,190:1636,:])
+
+# DIII - aVR
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste8.png", img[2990: 3790,190:1636,:])
+
+## DIII - aVF - V6 ## cortar certo 
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste9.png", img[2990:3790,1630:4490,:])
+
+## DIII - aVF - V3
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste10.png", img[2990:3790,1630:3064,:])
+
+## DIII V6   ##img[990:] -- inicio da v4, v5, v6    //4482 
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste11.png", img[2890:3800,4399:5917,:])
+
+
+## V5 
+img = function1(path_pdf='fabricantes/pdf/philips/ABO621217.pdf')
+_ = cv2.imwrite("resultados_testes/teste12.png", img[2360:3000,4475:5930,:1970])
+
+
+### Dicionário dos cortes nas respectivas derivações
+
+dicio_1 = {'DI': img[1800:2300,200:1600,:], 'DII':img[1680:2390,200:6080,:],
+           'V4': img[1600:2290,4470:6100,:], 'V5': img[2360:3000,4475:5930,:1970] ,'aVR': img[1680:2310,1600:3100:], 
+           'DII_maior':img[3800:5900,200:2800,:], 'DIII': img[2990: 3790,190:1636,:], 'aVF': img[2990:3790,1630:3064,:], 
+           'V6': img[2890:3800,4399:5917,:]}
+
+
+##########################################################################
+
+## criar um func que vai recberr uma img daquele dic e import novo dic das imagens binarizadas 
+## gray e binary
+## 
+# inserir o cvt.color e o threshold numa funcao
+## output com um dicionário da func
+
+
+def binariza_img (img_rgb):
+    gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY) 
+    bin = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)[1] 
+    return bin
+
+#binariza_img = cv2.threshold[cv2.cvtColor(img_rgb)
+#threshold = 900 
+
+
+#binary_ = binary.copy()
+#binary = binariza_img(img_rgb = bin[0])
+#binary = convert_binary (image = bin[:,:,1])
+
+#def bin ()
+    threshold = img.shape 
+    titles = ['Original Image', 'THRESH_BINARY', 'gray']
+    images = [bin,gray]
+
+
+
+dicio_2 = {'DI': 0, 'DII': 0,
+           'V4': 0, 'V5': 0,'aVR': 0, 
+           'DII_maior': 0, 'DIII': 0, 'aVF': 0, 
+           'V6': 0}
+
+
+
+## passo a passo 
+
+img_bin = binariza_img(dicio_1["DI"]) 
+dicio_2["DI"] = binariza_img(dicio_1["DI"])
+
+#binariza_img = binariza_img_copy() ## erro why?
+    
+for derivacao in dicio_1.keys():
+    dicio_2[derivacao] = binariza_img(dicio_1[derivacao])
+        
+## from all index images using binary 
+for index, binary_img in enumerate (dicio_2.values()): 
+    _ = cv2.imwrite ("resultados_testes/teste_binary"+ str(index)+".png", binary_img)
+      
+## convert_img_signal 
+## crop_bin ver linha 
+## test dicio_2.value():
+## crop_bin: 
+
+
+# transformar em sinal de 1D
+y = np.array([img_bin.shape[0] - np.median(np.argwhere(img_bin[:, i] == np.amax(img_bin[:, i]))) for i in range(img_bin.shape[1])])
+
+## documenta a parte da linha de cima
+## usar o for para cada imagem do dicio_2 
+## tirar cada img do dicio_2 para 
+
+dicio_3 = {'DI': 0, 'DII':0,
+           'V4': 0, 'V5': 0, 'aVR': 0, 
+           'DII_maior':0, 'DIII': 0, 'aVF': 0, 
+           'V6': 0}
+
+for key,binary_ in dicio_2.items():
+    dicio_3 [key]= np.array([binary_.shape[0] - np.median(np.argwhere(binary_[:, i] == np.amax(binary_[:, i]))) for i in range(binary_.shape[1])])
+    
+
+    #dicio_3 = {'DI':1400, 'DII':5880,
+           #'V4': 1630, 'V5':1455, 'aVR': 1500, 
+           #'DII_maior':2600, 'DIII': 1446, 'aVF': 1434, 
+           #'V6': 1518} 
+    
+## se tiver erro no dicio_3 ve no plt
+# plt.plot([DI])
+
+## list comprehension na mesma linha, popular uma lista baseada no for
+
+## normalizar/ media zero, desvio padrao =1
+## normaliza cada sinal dentro dela ## iterar no dico_3 cada sinal dentro e dividir pelo max value dele mesmo
+#for dicio_3 in dicio_3:
+    #dicio_3 = dicio_3/np.amax(dicio_3)[:, i] 
+
+## dicio_3.item criar um np.amax
+
+# 6. Para o item 6, utilize a função "savgol_filter" e use apenas os parâmetros "window_length" e "polyorder" na função do filtro.
+
+#original = [dicio_3]
+#impulse_response =[2,1]
+#recorded = signal.convolve(original)
+
+#temp = np.array
+#_ = cv2_imread('dicio_3',)
+    #for dicio_3 in dicio_3
+    
+        
+## teste do unfilter
+   
+  ## teste 1 
+  # 'mirror', 'nearest, 'constant', 'wrap'
+  
+
+    
+    ## array de 1d, tamanho de janela, ordem do poly
+    ## signal>1000
+    
+    cases1 = dicio_3.items()
+    
+    
+     
+    # plt.show()
+    
+    ## dicio_3 errada, <1000
+    
+     
+    cases1 = savgol_filter(dicio_3['DI'], 9,3)
+    val = list(range (cases1.items))
+    
+    cases1 = savgol_filter(dicio_3['DI'], 9,3) 
+    dicio_3['DI'].shape 
+    h = list (range (1400))
+    # plt.plot(h,cases1)
+    # plt.show()
+     
+    cases2  = savgol_filter(dicio_3['DII'],9,3)
+    dicio_3['DII'].shape
+    h = list (range (5880))   
+    plt.plot(h,cases2)
+    # plt.show()
+    
+    cases3  = savgol_filter(dicio_3['V4'],21,3)
+    dicio_3['V4'].shape
+    h = list (range (1630))   
+    plt.plot(h,cases3)
+    # plt.show()
+    
+  
+    cases4  = savgol_filter(dicio_3['V5'],21,3)
+    dicio_3['V5'].shape
+    h = list (range (1455))   
+    plt.plot(h,cases4)
+    # plt.show() 
+    
+    
+    cases5  = savgol_filter(dicio_3['aVR'],21,3)
+    dicio_3['aVR'].shape
+    h = list (range (1500))   
+    plt.plot(h,cases5)
+    #plt.show()
+    
+    cases6  = savgol_filter(dicio_3['DII_maior'],21,3)
+    dicio_3['DII_maior'].shape
+    h = list (range (2600))   
+    plt.plot(h,cases6)
+    #plt.show()
+    
+    cases7  = savgol_filter(dicio_3['DIII'],21,3)
+    dicio_3['DIII'].shape
+    h = list (range (1446))   
+    plt.plot(h,cases7)
+    #plt.show()
+    
+    cases8  = savgol_filter(dicio_3['aVF'],21,3)
+    dicio_3['aVF'].shape
+    h = list (range (1434))   
+    plt.plot(h,cases8)
+    #plt.show()
+    
+    
+
+    cases9  = savgol_filter(dicio_3['V6'],21,3)
+    dicio_3['V6'].shape
+    h = list (range (1518))   
+    plt.plot(h,cases9)
+    #plt.show() 
+    
+    np.shape(dicio_3['DI'])
+    np.shape(dicio_3['DII'])
+    np.shape (dicio_3['V4']) 
+    np.shape(dicio_3['V5'])
+    np.shape(dicio_3['aVR'])
+    np.shape(dicio_3['DII_maior'])
+    np.shape(dicio_3['aVF'])
+    np.shape(dicio_3['DIII'])
+    np.shape(dicio_3['V6'])
+    
+    ##for para mudar em todas as outras 
+    
+    #for index, cases1 in enumerate (dicio_3.values()): 
+    # _ = cv2.imwrite ("resultados_testes/teste_binary"+ str(index)+".png", binary_img)
+      
+      
+      
+## testing`numpy.float64' before filter
+    
+    for key,cases1 in h:
+       cases1.key= np.array([dicio_4.shape[0] - np.savgol_filter for i in range(h.shape[1])])
+    
+dicio_4 = {'DI': 0, 'DII':0,
+        'V4': 0, 'V5': 0, 'aVR': 0, 
+        'DII_maior':0, 'DIII': 0, 'aVF': 0, 
+        'V6': 0}     
+## for key, dicio_3 in dicio_3.items():
+#     dicio_4[dicio_3] = savgol_filter(dicio_3, 9, 1)
+
+for key, cases1 in dicio_3.items():
+        dicio_4[key] = savgol_filter(cases1, 9,1) 
+
+
+
+
+
+print(dicio_4)       
+dicio_4 = {'DI': 0, 'DII':0,
+        'V4': 0, 'V5': 0, 'aVR': 0, 
+        'DII_maior':0, 'DIII': 0, 'aVF': 0, 
+    
+    
+    
+   
+    
+np.shape(dicio_4['DI'])
+    np.shape(dicio_4['DII'])
+    np.shape (dicio_4['V4']) 
+    np.shape(dicio_4['V5'])
+    np.shape(dicio_4['aVR'])
+    np.shape(dicio_4['DII_maior'])
+    np.shape(dicio_4['aVF'])
+    np.shape(dicio_4['DIII'])
+    np.shape(dicio_4['V6'])   
+        
+    ## retornar para o dicio_3 ver porque está vindo só o tamanho da janela   
+    dicio_4 = {'DI': 0, 'DII':0,
+           'V4': 0, 'V5': 0, 'aVR': 0, 
+           'DII_maior':0, 'DIII': 0, 'aVF': 0, 
+           'V6': 0}  
+      
+      
+      
+    x = np.array([[1, 2, 3], [4, 5, 6]])
+np.ravel(x)
+array([1, 2, 3, 4, 5, 6]) 
+reshape(-1, order=order)
+
+    
+    for chave, sinal in dicio_3.items():
+        dicio_4[chave] = savgol_filter(sinal, 21, 3) 
+   
+   
+    
+    
+    x = np.array ['x':'y':]
+    y = ndarray 
+    plt.plot(unfiltered)
+   
+binary_ = dicio_3.items[:,1]..values()
+for key, y in dicio_3.values(): 
+    #y = dicio_3.items[:,1].values 
+    
+  
+    plt.show()
+    df_1 = df.merge(df_subset, how='left', indicator=True)
+    df_1[df_1['_merge'] == 'left_only'][['a','b','c']]
+    
+     ## filtered = sgn.savgol_filter()
+    
+#window_length
+#polyorder
+## polinomios, os expoentes, o grau do polinomio, o grau do termo do polinomio(o expoente do termo)
+
+
+
+### test savgol_coeffs(x,y)
+
+savgol_coeffs()
+savgol_coeffs()
+
+savgol_coeffs(x,y, pos=3)
+savgol_coeffs(x,y, pos=3, use='dot')
+
+savgol_coeffs(x,y, pos =3, deriv=1, use='dot')
+from scipy.signal import savgol_coeffs
+x = np.array([dicio_3_filtered])
+
+## Test 3
+
+def check(letter):
+  list_of_dict = ['dicio_1', 'dicio_2', 'dicio_3' ] #dicio_4
+  if letter in list_of_dict:
+      return True
+  else:
+      return False
+  
+#dicio_1 
+#derivacao
+letters = ['u', 'a', 'q', 'c', 'i', 'd', 'z', 'p', 'e']
+filtered_object = filter(check, letters)
+print("The type of returned object is: ", type(filtered_object))
+filtered_list = list(filtered_object)
+print("The list of vowels is: ", filtered_list)
+
+
+
+## dici
+## plot tem que ficar igual a imagem
+## y e coloca no dicio_3
+
+
+## com as derv q recebe 
+
+    
+## teste depois de plota o graph de 1D: binary = convert_binary(gray, inv = True, otsu = False, index_min_color = 150)
+## cada imagem transformar,
+## novo dicio_2 aquelas imagens do dicio com essas imagens // para binarizar convert pra gray e dps treshold 
+
+
+## com a referencia a todos os dicionarios anteriores 
+
+
+
+
+### escala de cinza
+
+
+
+
+
+
+
+
+
+
+## definir function 2
+#def function2(img)
+## 2. dicionário de localizações:
+## 3. dicionário de localizações das imagens binárias 
+# img.shape[0] = 4800
+## img_original.shape = (4800, 6378, 3)
+## shape_original = array([4800, 6378])
+## Resized Dimensions: 
+
+img.shape[0] > img.shape[1]
+img.shape[1]
+
+print('Original Dimensions :', img.shape)
+scale_percent = 
+width =(img.shape[0]* scale_percent/100)
+height = int(img.shape[0]*scale_percent/100)
+dim = (width,height) 
+    
+   
+    # img_original = np.asarray(pages[1])
+ 
+# img.shape[1]
+# img_original = img.copy() 
+# shape_original = np.array(img_original.shape[:2])
+
+# resize image
+resized = cv2.resize(img,dim, interpolation = cv2.INTER_AREA)
+print('Resized Dimensions : ', resized.shape)
+cv2.imshow("Resized image", resized)
+cv2.waitKey()
+cv2.destroyAllWindows()
